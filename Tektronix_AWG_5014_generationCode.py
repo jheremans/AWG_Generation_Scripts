@@ -1,9 +1,10 @@
 # Tek AWG program
 
 import matplotlib
+import matplotlib.pyplot as plt
 import numpy
 import re
-from pylab import *
+import sys
 
 AWG_model = '5014'
 
@@ -27,6 +28,8 @@ elif AWG_model == '520':
 # times in ns
 Chan1 = ['GreenON','600','numpy.linspace(0,600,51)','300']
 Chan1m2 = ['WFM_length - Green_AOM_delay']
+Chan1m2 = ['']
+
 
 # will eventually be a function called interpretChan and interpretMarker
 ChanCode = Chan1
@@ -83,13 +86,54 @@ for wfm in range(0,NumWFMs):
 
 
 # Plot one waveform
-wfm = 1
-Xdata = numpy.linspace(0,WFM_length,WFM_length)
-Ydata = ChanArrVal[wfm,:]
-plot(Xdata,Ydata)
+##f = figure()
+##graph1 = f.add_subplot(311)
+##graph2 = f.add_subplot(312,sharex=graph1)
+##graph3 = f.add_subplot(313,sharex=graph1)
+##nb = 1
 
-xlabel('time (ns)')
-ylabel('voltage (mV)')
-title('Waveform %d' % wfm)
-grid(True)
-show()
+##KBinput = raw_input('What waveform would you like')
+##decoded = KBinput.decode('utf-8')
+##inputWFM = decoded.encode('utf-8')
+##print('Desire WFM %s',inputWFM)
+
+
+
+##while (inputWFM != 'q'):
+##    if inputWFM != 'q':
+##        graph1.clear()
+##        graph2.clear()
+##        graph3.clear()
+##
+##        wfm = eval(inputWFM)
+##        Xdata = numpy.linspace(0,WFM_length,WFM_length)
+##        Ydata = ChanArrVal[wfm,:]
+##
+##        graph1.plot(Xdata,Ydata)
+##        graph1.set_title('Waveform %d' % wfm)
+##        graph1.set_ylabel('Channels voltage (mV)')
+##        grid(True)
+##        graph2.plot(Xdata,Ydata)
+##
+##
+##
+##        graph2.plot(Xdata,Ydata)
+##        graph2.set_ylabel('Chan 1 & 2 Markers voltage (mV)')
+##
+##
+##        graph3.plot(Xdata,Ydata)
+##        graph3.set_ylabel('Chan 3& 4 Markers voltage (mV)')
+##
+##
+##        xlabel('time (ns)')
+##        ylabel('voltage (mV)')
+##        show()
+##
+##
+##print('Quit detected')
+
+fig = plt.figure(figsize=(5,10))
+
+plt.imshow(ChanArrVal, aspect="auto",cmap=plt.get_cmap('BuGn'))
+
+plt.show()
