@@ -87,11 +87,14 @@ def Populate_Marker(MarkerCode,ChanNum,WFM_length,NumWFMs):
                         print ('ERROR: unknown marker value')
                 MarkerArrIdx = MarkerArrIdx+bufferLength
             else:
+
                 for x in range(0,eval(el_time)):
                     if el_val == 'HIGH':
                         MarkerArrVal[wfm,MarkerArrIdx] = 1
+##                        print('No Numpy Found: %s, HIGH' % wfm)
                     elif el_val == 'LOW':
                         MarkerArrVal[wfm,MarkerArrIdx] = 0
+##                        print('No Numpy Found: %s, LOW' % wfm)
                     else:
                         print ('ERROR: unknown marker value')
 
@@ -109,8 +112,6 @@ piPulse = 10 #ns
 
 # CONSTANTS
 WFM_length = 2500 # ns
-GreenON = 1000 # ns
-Green_AOM_delay = 1080 # ns
 
 if AWG_model == '5014':
     print('Setting up for AWG %s' % AWG_model)
@@ -121,11 +122,13 @@ elif AWG_model == '520':
     numChans = 2
     numMrksPerChan = 2
 
-
+GreenAOMDelay = 1000
+GreenPLread = 300
+T_rabi =numpy.arange(0,601,10)
 
 # times in ns
-Chan1Val = [('GreenON','0'),('600','0'),('numpy.linspace(0,600,51)','1'),('300','0')]
-Chan1Mark1 = [('WFM_length','HIGH')]
+Chan1Val = [('WFM_length','0')]
+Chan1Mark1 = [('WFM_length-GreenAOMDelay','LOW'),('GreenAOMDelay','HIGH')]
 Chan1Mark2 = [('WFM_length','LOW')]
 
 Chan2Val = [('WFM_length','0')]
@@ -133,12 +136,12 @@ Chan2Mark1 = [('WFM_length','LOW')]
 Chan2Mark2 = [('WFM_length','LOW')]
 
 Chan3Val = [('WFM_length','0')]
-Chan3Mark1 = [('WFM_length','HIGH')]
+Chan3Mark1 = [('GreenAOMDelay','LOW'),('600','LOW'),('numpy.arange(0,601,10)','HIGH'),('300','LOW')]
 Chan3Mark2 = [('WFM_length','LOW')]
 
 Chan4Val = [('WFM_length','0')]
-Chan4Mark1 = [('WFM_length','HIGH')]
-Chan4Mark2 = [('WFM_length','LOW')]
+Chan4Mark1 = [('GreenAOMDelay','HIGH'),('WFM_length-GreenAOMDelay','LOW')]
+Chan4Mark2 = [('GreenPLread','HIGH'),('WFM_length-GreenPLread','LOW')]
 
 # will eventually be a function called interpretChan and interpretMarker
 ChanCode = Chan1Val
@@ -169,7 +172,7 @@ maxBufLen4 = max([sum(buffChan4),sum(buffCh4M1),sum(buffCh4M2)])
 
 
 
-NumWFMs = max([NumWFMCh1,NumWFMCh1M1,NumWFMCh1M2])
+NumWFMs = max([NumWFMCh1,NumWFMCh1M1,NumWFMCh1M2,NumWFMCh2,NumWFMCh2M1,NumWFMCh2M2,NumWFMCh3,NumWFMCh3M1,NumWFMCh3M2,NumWFMCh4,NumWFMCh4M1,NumWFMCh4M2])
 
 print('\nBuffer length calculate: %d, Waveform Length: %d' % (sum(buffChan1),WFM_length))
 print('---------------------------------------------------')
@@ -192,10 +195,18 @@ print('POPULATING CHANNELS & MARKERS: %d waveforms, %d ns long' % (NumWFMs,WFM_l
 print('---------------------------------------------------')
 print('SAVING FILES ')
 
-base_filename = 'WfRabi'
-LenData = len(Chan1ArrVal[1,:])
+base_filename = 'T_Rabi0-600_python'
+LenData = len(Chan1ArrVal[0,:])*5
 LenHead = len(('%s' % LenData))
-seq_name = os.path.join('C:\\AWG',('AWG_SEQ_%s.seq' %(base_filename)))
+
+base_dir = 'Y:\AWG'
+os.chdir('Y:\AWG')
+basefile_dir = ('Y:\\AWG\\%s' %(base_filename))
+if not os.path.exists(basefile_dir):
+    os.makedirs(base_filename)
+    print ('Making subdirectory: %s' % base_filename)
+
+seq_name = os.path.join(basefile_dir,('AWG_SEQ_%s.seq' %(base_filename)))
 fseq = open(seq_name,'w')
 fseq.write('MAGIC 3004\n')
 fseq.write('LINES %s\n'% (NumWFMs))
@@ -205,18 +216,18 @@ for wfm in range(0,NumWFMs):
         file_name = ('%s%dc%d.wfm' % (base_filename,wfm,cc+1))
         fseq.write(('"%s"' % file_name))
         if cc+1 != numChans:
-            fseq.write(', ')
+            fseq.write(',')
         else:
-            fseq.write((',0,0,%d,0\n' % wfm))
+            fseq.write((',0,0,%d,0\n' % (wfm+1)))
 fseq.write('JUMP_MODE SOFTWARE\n')
 fseq.write('JUMP_TIMING SYNC\n')
 fseq.write('CLOCK 1.0E+9')
 fseq.close()
 
-def write_waveform_files(ChanArrVal,ChanArrMark1,ChanArrMark2,ChanNum):
+def write_waveform_files(ChanArrVal,ChanArrMark1,ChanArrMark2,ChanNum,NumWFMs):
     for wfm in range(0,NumWFMs):
         file_name = ('%s%dc%d.wfm' % (base_filename,wfm,ChanNum))
-        file_name = os.path.join('C:\\AWG',file_name)
+        file_name = os.path.join(basefile_dir,file_name)
         fp = open(file_name,'w')
         fp.write('MAGIC 1000\n')
         fp.write('#%s%s'% (LenHead,LenData))
@@ -224,9 +235,13 @@ def write_waveform_files(ChanArrVal,ChanArrMark1,ChanArrMark2,ChanNum):
             fp.write(struct.pack('<f',ChanArrVal[wfm,ii]))
             fp.write(struct.pack('<B',ChanArrMark1[wfm,ii]+2*ChanArrMark2[wfm,ii]))
         fp.close()
+    print('SAVED WAVEFORMS for Chan%s' % ChanNum)
 
-write_waveform_files(Chan1ArrVal,Chan1ArrMark1,Chan1ArrMark2,1)
 
+write_waveform_files(Chan1ArrVal,Chan1ArrMark1,Chan1ArrMark2,1,NumWFMs)
+write_waveform_files(Chan2ArrVal,Chan2ArrMark1,Chan2ArrMark2,2,NumWFMs)
+write_waveform_files(Chan3ArrVal,Chan3ArrMark1,Chan3ArrMark2,3,NumWFMs)
+write_waveform_files(Chan4ArrVal,Chan4ArrMark1,Chan4ArrMark2,4,NumWFMs)
 
 # Plot one waveform
 ##f = figure()
