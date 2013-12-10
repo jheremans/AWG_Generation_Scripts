@@ -124,6 +124,8 @@ GreenAOMDelay = 1000
 GreenPLread = 300
 T_rabi =numpy.arange(0,601,10)
 
+base_filename = 'LogicTreeTest'
+
 # times in ns
 Chan1Val = [('WFM_length','0')]
 Chan1Mark1 = [('WFM_length-GreenAOMDelay','LOW'),('GreenAOMDelay','HIGH')]
@@ -134,8 +136,8 @@ Chan2Mark1 = [('WFM_length','LOW')]
 Chan2Mark2 = [('WFM_length','LOW')]
 
 Chan3Val = [('WFM_length','0')]
-Chan3Mark1 = [('GreenAOMDelay','LOW'),('600','LOW'),('numpy.arange(0,501,10)','HIGH'),('300','LOW')]
-Chan3Mark2 = [('WFM_length','LOW')]
+Chan3Mark1 = [('GreenAOMDelay','LOW'),('600','LOW'),('600','HIGH'),('300','LOW')]
+Chan3Mark2 = [('WFM_length/2','HIGH'),('WFM_length/2','LOW')]
 
 Chan4Val = [('WFM_length','0')]
 Chan4Mark1 = [('GreenAOMDelay','HIGH'),('WFM_length-GreenAOMDelay','LOW')]
@@ -193,12 +195,12 @@ print('POPULATING CHANNELS & MARKERS: %d waveforms, %d ns long' % (NumWFMs,WFM_l
 print('---------------------------------------------------')
 print('SAVING FILES ')
 
-base_filename = 'T_Rabi0-500_python'
+
 LenData = len(Chan1ArrVal[0,:])*5
 LenHead = len(('%s' % LenData))
 
 base_dir = 'F:\AWG'
-os.chdir('F:\AWG')
+os.chdir(base_dir)
 basefile_dir = ('F:\\AWG\\%s' %(base_filename))
 if not os.path.exists(basefile_dir):
     os.makedirs(base_filename)

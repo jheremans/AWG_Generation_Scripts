@@ -7,7 +7,7 @@ import sys
 import os
 import struct
 
-os.chdir('C:\Users\Steve\Documents\GitHub\AWG_Generation_Scripts')
+os.chdir('C:\Users\Felix\Documents\GitHub')
 
 def Parse_Channel(ChanCode,ChanNum,WFM_length):
 # Parse channel information
@@ -102,7 +102,7 @@ def Populate_Marker(MarkerCode,ChanNum,WFM_length,NumWFMs):
     return MarkerArrVal
 
 
-AWG_model = '5014'
+AWG_model = '520'
 
 clock = 1 #ns
 piPulse = 10 #ns
@@ -130,16 +130,9 @@ Chan1Mark1 = [('WFM_length-GreenAOMDelay','LOW'),('GreenAOMDelay','HIGH')]
 Chan1Mark2 = [('WFM_length','LOW')]
 
 Chan2Val = [('WFM_length','0')]
-Chan2Mark1 = [('WFM_length','LOW')]
+Chan2Mark1 = [('GreenAOMDelay','LOW'),('600','LOW'),('numpy.arange(0,601,10)','HIGH'),('300','LOW')]
 Chan2Mark2 = [('WFM_length','LOW')]
 
-Chan3Val = [('WFM_length','0')]
-Chan3Mark1 = [('GreenAOMDelay','LOW'),('600','LOW'),('numpy.arange(0,501,10)','HIGH'),('300','LOW')]
-Chan3Mark2 = [('WFM_length','LOW')]
-
-Chan4Val = [('WFM_length','0')]
-Chan4Mark1 = [('GreenAOMDelay','HIGH'),('WFM_length-GreenAOMDelay','LOW')]
-Chan4Mark2 = [('GreenPLread','HIGH'),('WFM_length-GreenPLread','LOW')]
 
 # will eventually be a function called interpretChan and interpretMarker
 ChanCode = Chan1Val
@@ -158,19 +151,8 @@ maxBufLen1 = max([sum(buffChan1),sum(buffCh1M1),sum(buffCh1M2)])
 (buffCh2M2,NumWFMCh2M2) = Parse_Channel(Chan2Mark2,'2M2',WFM_length)
 maxBufLen2 = max([sum(buffChan2),sum(buffCh2M1),sum(buffCh2M2)])
 
-(buffChan3,NumWFMCh3) = Parse_Channel(Chan3Val,'3',WFM_length)
-(buffCh3M1,NumWFMCh3M1) = Parse_Channel(Chan3Mark1,'3M1',WFM_length)
-(buffCh3M2,NumWFMCh3M2) = Parse_Channel(Chan3Mark2,'3M2',WFM_length)
-maxBufLen3 = max([sum(buffChan3),sum(buffCh3M1),sum(buffCh3M2)])
 
-(buffChan4,NumWFMCh4) = Parse_Channel(Chan4Val,'4',WFM_length)
-(buffCh4M1,NumWFMCh4M1) = Parse_Channel(Chan4Mark1,'4M1',WFM_length)
-(buffCh4M2,NumWFMCh4M2) = Parse_Channel(Chan4Mark2,'4M2',WFM_length)
-maxBufLen4 = max([sum(buffChan4),sum(buffCh4M1),sum(buffCh4M2)])
-
-
-
-NumWFMs = max([NumWFMCh1,NumWFMCh1M1,NumWFMCh1M2,NumWFMCh2,NumWFMCh2M1,NumWFMCh2M2,NumWFMCh3,NumWFMCh3M1,NumWFMCh3M2,NumWFMCh4,NumWFMCh4M1,NumWFMCh4M2])
+NumWFMs = max([NumWFMCh1,NumWFMCh1M1,NumWFMCh1M2,NumWFMCh2,NumWFMCh2M1,NumWFMCh2M2])
 
 print('\nBuffer length calculate: %d, Waveform Length: %d' % (sum(buffChan1),WFM_length))
 print('---------------------------------------------------')
@@ -182,31 +164,23 @@ print('POPULATING CHANNELS & MARKERS: %d waveforms, %d ns long' % (NumWFMs,WFM_l
 (Chan2ArrVal) = Populate_Channel(Chan2Val,'2',WFM_length,NumWFMs)
 (Chan2ArrMark1) = Populate_Marker(Chan2Mark1,'2M1',WFM_length,NumWFMs)
 (Chan2ArrMark2) = Populate_Marker(Chan2Mark2,'2M2',WFM_length,NumWFMs)
-
-(Chan3ArrVal) = Populate_Channel(Chan3Val,'3',WFM_length,NumWFMs)
-(Chan3ArrMark1) = Populate_Marker(Chan3Mark1,'3M1',WFM_length,NumWFMs)
-(Chan3ArrMark2) = Populate_Marker(Chan3Mark2,'3M2',WFM_length,NumWFMs)
-
-(Chan4ArrVal) = Populate_Channel(Chan4Val,'4',WFM_length,NumWFMs)
-(Chan4ArrMark1) = Populate_Marker(Chan4Mark1,'4M1',WFM_length,NumWFMs)
-(Chan4ArrMark2) = Populate_Marker(Chan4Mark2,'4M2',WFM_length,NumWFMs)
 print('---------------------------------------------------')
 print('SAVING FILES ')
 
-base_filename = 'T_Rabi0-500_python'
+base_filename = 'AWG520_T_Rabi0-600_python'
 LenData = len(Chan1ArrVal[0,:])*5
 LenHead = len(('%s' % LenData))
 
-base_dir = 'F:\AWG'
-os.chdir('F:\AWG')
-basefile_dir = ('F:\\AWG\\%s' %(base_filename))
+base_dir = 'M:\Shared Projects\Cold Diamond\AWG'
+os.chdir(base_dir)
+basefile_dir = ('%s\\%s' %(base_dir,base_filename))
 if not os.path.exists(basefile_dir):
     os.makedirs(base_filename)
     print ('Making subdirectory: %s' % base_filename)
 
-seq_name = os.path.join(basefile_dir,('AWG_SEQ_%s.seq' %(base_filename)))
+seq_name = os.path.join(basefile_dir,('AWG520_SEQ_%s.seq' %(base_filename)))
 fseq = open(seq_name,'w')
-fseq.write('MAGIC 3004\n')
+fseq.write('MAGIC 3002\n')
 fseq.write('LINES %s\n'% (NumWFMs))
 
 for wfm in range(0,NumWFMs):
@@ -216,10 +190,11 @@ for wfm in range(0,NumWFMs):
         if cc+1 != numChans:
             fseq.write(',')
         else:
-            fseq.write((',0,0,%d,0\n' % (wfm+1)))
+            fseq.write((',0,1,%d,0\n' % (wfm+1)))
+fseq.write('LOGIC_JUMP 1,-1,-1,-1\n')
 fseq.write('JUMP_MODE SOFTWARE\n')
 fseq.write('JUMP_TIMING SYNC\n')
-fseq.write('CLOCK 1.0E+9')
+##fseq.write('CLOCK 1.0E+9')
 fseq.close()
 
 def write_waveform_files(ChanArrVal,ChanArrMark1,ChanArrMark2,ChanNum,NumWFMs):
@@ -232,14 +207,13 @@ def write_waveform_files(ChanArrVal,ChanArrMark1,ChanArrMark2,ChanNum,NumWFMs):
         for ii in range(0,WFM_length):
             fp.write(struct.pack('<f',ChanArrVal[wfm,ii]))
             fp.write(struct.pack('<B',ChanArrMark1[wfm,ii]+2*ChanArrMark2[wfm,ii]))
+        fp.write('CLOCK 1.0E+9')
         fp.close()
     print('SAVED WAVEFORMS for Chan%s' % ChanNum)
 
 
 write_waveform_files(Chan1ArrVal,Chan1ArrMark1,Chan1ArrMark2,1,NumWFMs)
 write_waveform_files(Chan2ArrVal,Chan2ArrMark1,Chan2ArrMark2,2,NumWFMs)
-write_waveform_files(Chan3ArrVal,Chan3ArrMark1,Chan3ArrMark2,3,NumWFMs)
-write_waveform_files(Chan4ArrVal,Chan4ArrMark1,Chan4ArrMark2,4,NumWFMs)
 
 # Plot one waveform
 ##f = figure()
