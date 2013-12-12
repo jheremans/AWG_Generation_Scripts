@@ -47,6 +47,22 @@ fp.close() # Close file
 output_list = sorted(values.iteritems(),key=operator.itemgetter(1))
 output = []
 for x in range(len(output_list)):
-     output.append([output_list[x][0], output_list[x][1][2], output_list[x][1][1]]) #Only print attribute name and value, not the byte sizes and indices we stored for later use
+    byte_num = output_list[x][1][1]
+    name_string = output_list[x][0]
+    if byte_num == 2:
+         output.append([name_string,'int16'])
+    elif byte_num == 4:
+        output.append([name_string,'int32'])
+    elif byte_num== 8:
+        output.append([name_string,'float64'])
+    else:
+        name_string = output_list[x][0]
+        if "NAME" in name_string:
+            output.append([name_string,'WFM_name'])
+        elif "DATA" in name_string:
+            output.append([name_string,'WFM_data'])
+        elif "TIMESTAMP"in name_string:
+            output.append([name_string,'16byteTimeStamp'])
+##     output.append([output_list[x][0], output_list[x][1][2], output_list[x][1][1]]) #Only print attribute name and value, not the byte sizes and indices we stored for later use
 print output
 

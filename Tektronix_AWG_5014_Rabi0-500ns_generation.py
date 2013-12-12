@@ -7,7 +7,7 @@ import sys
 import os
 import struct
 
-os.chdir('C:\Users\Steve\Documents\GitHub\AWG_Generation_Scripts')
+os.chdir('C:\Users\Felix\Documents\GitHub\AWG_Generation_Scripts')
 
 def Parse_Channel(ChanCode,ChanNum,WFM_length):
 # Parse channel information
