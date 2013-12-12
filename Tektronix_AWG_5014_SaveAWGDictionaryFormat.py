@@ -46,6 +46,9 @@ fp.close() # Close file
 # Generate sorted list from dictionary, sorting by index (the order originally read from file)
 output_list = sorted(values.iteritems(),key=operator.itemgetter(1))
 output = []
+NameFlag = 0
+DataFlag = 0
+TimestampFlag = 0
 for x in range(len(output_list)):
     byte_num = output_list[x][1][1]
     name_string = output_list[x][0]
@@ -58,11 +61,25 @@ for x in range(len(output_list)):
     else:
         name_string = output_list[x][0]
         if "NAME" in name_string:
-            output.append([name_string,'WFM_name'])
+            if NameFlag == 0:
+                output.append([name_string,'WFM_name'])
+                NameFlag = 1
         elif "DATA" in name_string:
-            output.append([name_string,'WFM_data'])
+            if DataFlag == 0:
+                output.append([name_string,'WFM_data'])
+                DataFlag = 1
         elif "TIMESTAMP"in name_string:
-            output.append([name_string,'16byteTimeStamp'])
+            if TimestampFlag == 0:
+                output.append([name_string,'16byteTimeStamp'])
+                TimestampFlag = 1
 ##     output.append([output_list[x][0], output_list[x][1][2], output_list[x][1][1]]) #Only print attribute name and value, not the byte sizes and indices we stored for later use
-print output
+##print output
 
+
+seq_name = 'AWGFileFormat_Dictionary.txt';
+fseq = open(seq_name,'w')
+
+for x in range(0,len(output)):
+    fseq.write('%s \t %s\n' %(output[x][0],output[x][1]))
+
+fseq.close()
