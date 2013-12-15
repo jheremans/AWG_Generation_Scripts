@@ -73,7 +73,7 @@ for x in range(len(output_list)):
                 output.append([name_string,'16byteTimeStamp'])
                 TimestampFlag = 1
 ##     output.append([output_list[x][0], output_list[x][1][2], output_list[x][1][1]]) #Only print attribute name and value, not the byte sizes and indices we stored for later use
-##print output
+print output
 
 
 seq_name = 'AWGFileFormat_Dictionary.txt';

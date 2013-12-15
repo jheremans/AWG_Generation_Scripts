@@ -1,0 +1,736 @@
+
+File and Record Format
+A file is a binary format in which multiple record formats are enumerated. The default file extension for AWG setup files is "*.awg". 
+
+The file record format is as follows:
+
+Record Name Size
+
+(32-bit unsigned integer)
+ Record Data Size
+
+(32-bit unsigned integer)
+ Record Name (ASCII)
+
+(Include NULL.)
+ Record Data
+ 
+
+
+When a file is input or output, the Record Name Size, Record Data Size, and Digital Data are handled as little endian. 
+
+Record Name List
+The following table lists the record names. For the default value of each record, refer to Factory Default Setup parameter list. 
+
+No.
+ Record Name
+ Record Data Format 1  2 
+ Memo [Enum Type Name in AwgDefines.h]
+ 
+1
+ 1
+ MAGIC
+ Short
+ The default value is 5000. The value ranges between 5000 and 5999. If the value is outside this range, the record cannot be loaded. 
+
+This record cannot be omitted. It is essential. In addition, it must be at the beginning. 
+ 
+2
+ VERSION
+ Short
+ The value is 1. The value is changed each time the format of the file is changed. 
+
+This record cannot be omitted. It is essential. In addition, it must be at the second (=next to MAGIC) location. 
+ 
+2
+ 1
+ SAMPLING_RATE
+
+(Sampling Rate)
+ Double
+    
+ 
+2
+ REPETITION_RATE
+
+(Repetition Rate)
+ Double
+ = Sampling Rate/Number of Waveform Points
+ 
+3
+ HOLD_REPETITION_RATE
+
+(Hold Repetition Rate)
+ Short(BOOL)
+ True | False
+ 
+4
+ CLOCK_SOURCE
+
+(Clock Source)
+ Short(enum)
+ Internal | External 
+
+[EClockSource]
+ 
+5
+ REFERENCE_SOURCE
+
+(Reference Source)
+ Short(enum)
+ Internal | External 
+
+[EReferenceSource]
+ 
+6
+ EXTERNAL_REFERENCE_TYPE
+
+(External Reference Type)
+ Short(enum)
+ Fixed | Variable 
+
+[EReferenceType]
+ 
+7
+ REFERENCE_CLOCK_FREQUENCY_ SELECTION
+
+(Reference Clock Frequency Selection)
+ Short(enum)
+ 10 MHz | 20 MHz | 100 MHz
+
+[EReferenceClockFrequency]
+ 
+8
+ REFERENCE_MULTIPLIER_RATE 
+
+(Reference Multiplier Rate)
+ Short
+ 
+ 
+9
+ DIVIDER_RATE(Divider Rate 
+
+(for Oscillator Input))
+ Short(enum)
+ 1 | 2 | 4 | 8 | 16 | 32 | 64 | 128 | 256 
+
+[EDividerRate]
+ 
+10
+ TRIGGER_SOURCE 
+
+(Trigger Source)
+ Short(enum)
+ Internal | External 
+
+[ETriggerSource]
+ 
+11
+ INTERNAL_TRIGGER_RATE 
+
+(Internal Trigger Rate)
+ Double
+ 
+ 
+12
+ TRIGGER_INPUT_IMPEDANCE 
+
+(Trigger Input Impedance)
+ Short(enum)
+ 50 ohm | 1 kohm 
+
+[ETriggerInputImpedance]
+ 
+13
+ TRIGGER_INPUT_SLOPE 
+
+(Trigger Input Slope)
+ Short(enum)
+ Positive | Negative 
+
+[ETriggerInputSlope]
+ 
+14
+ TRIGGER_INPUT_POLARITY 
+
+(Trigger Input Polarity)
+ Short(enum)
+ Positive | Negative 
+
+[ETriggerInputPolarity]
+ 
+15
+ TRIGGER_INPUT_THRESHOLD 
+
+(Trigger Input Threshold)
+ Double
+ 
+ 
+16
+ EVENT_INPUT_IMPEDANCE (Event Input Impedance)
+ Short(enum)
+ 50 ohm | 1 kohm 
+
+[EEventInputImpedance]
+ 
+17
+ EVENT_INPUT_POLARITY 
+
+(Event Input Polarity)
+ Short(enum)
+ Positive | Negative 
+
+[EEventInputPolarity]
+ 
+18
+ EVENT_INPUT_THRESHOLD 
+
+(Event Input Threshold)
+ Double
+    
+ 
+19
+ JUMP_TIMING 
+
+(Jump Timing)
+ Short(enum)
+ Sync | Async 
+
+[EJumpTiming]
+ 
+20
+ INTERLEAVE 
+
+(Interleave)
+ Short(BOOL)
+ On | Off: This setting is stronger than [COUPLING].
+ 
+21
+ ZEROING 
+
+(Zeroing)
+ Short(BOOL)
+ On | Off
+ 
+22
+ COUPLING 
+
+(Coupling)
+ Short(enum)
+ The Off | Pair | All setting is weaker than [INTERLEAVE]. 
+ 
+23
+ RUN_MODE 
+
+(Run Mode)
+ Short(enum)
+ Continuous | Triggered | Gated | Sequence 
+
+[ERunMode]
+ 
+24
+ WAIT_VALUE 
+
+(Wait Value)
+ Short(enum)
+ First | Last 
+
+[EWaitValue]
+ 
+25
+ RUN_STATE 
+
+(Run State)
+ Short(BOOL)
+ On | Off
+ 
+26
+ INTERLEAVE_ADJ_PHASE
+ Double
+    
+ 
+27
+ INTERLEAVE_ADJ_AMPLITUDE
+ Double
+ 
+ 
+28
+ EVENT_JUMP_MODE
+ Short(enum)
+ EVENT JUMP | DYNAMIC JUMP
+
+[EEventJumpMode]
+ 
+29
+ TABLE_JUMP_STROBE
+ Short(BOOL)
+ On
+ 
+31
+ TABLE_JUMP_DEFINITION
+ Long
+ Definitions for table jump function. Array of TABLEJUMP. The Array size is variable according to the number of definition. 
+ 
+3
+ "_N" at the end is channel number. It is "_1" to "_4." 
+ 
+1
+ DAC_RESOLUTION_N
+
+(DAC Resolution)
+ Short(enum)
+ 8 | 10 
+
+[EDacResolution]
+ 
+2
+ UTPUT_WAVEFORM_NAME_N
+
+(Output Waveform Name for Non-Sequence mode)
+ Char
+ Include NULL.
+ 
+3
+ CHANNEL_STATE_N
+
+(Channel State)
+ Short(BOOL)
+ On | Off
+ 
+4
+ ANALOG_DIRECT_OUTPUT_N
+
+(Analog Direct Output)
+ Short(BOOL)
+ On | Off
+ 
+5
+ ANALOG_FILTER_N
+
+(Filter)
+ Short(enum)
+ Enum type. 
+
+[EFilter]
+ 
+6
+ ANALOG_METHOD_N
+
+(Analog Level Input Method)
+ Short(enum)
+ Amplitude/Offset, High/Low 
+
+[EAnalogInputMethod]
+ 
+7
+ ANALOG_AMPLITUDE_N
+
+(Analog Amplitude)
+ Double
+ When the Input Method is High/Low, it is skipped.
+ 
+8
+ ANALOG_OFFSET_N
+
+(Analog Offset)
+ Double
+ When the Input Method is High/Low, it is skipped.
+ 
+9
+ ANALOG_HIGH_N
+
+(Analog High)
+ Double
+ When the Input Method is Amplitude/Offset, it is skipped. 
+ 
+10
+ ANALOG_LOW_N
+
+(Analog Low)
+ Double
+ When the Input Method is Amplitude/Offset, it is skipped. 
+ 
+11
+ MARKER1_SKEW_N
+
+(Marker Skew)
+ Double
+    
+ 
+12
+ MARKER1_METHOD_N
+
+(Marker1 Level Input Method)
+ Short(enum)
+ Amplitude/Offset, High/Low 
+
+[EMarkerInputMethod]
+ 
+13
+ MARKER1_AMPLITUDE_N
+
+(Marker1 Amplitude)
+ Double
+ When the Input Method is High/Low, it is skipped.
+ 
+14
+ MARKER1_OFFSET_N
+
+(Marker1 Offset)
+ Double
+ When the Input Method is High/Low, it is skipped.
+ 
+15
+ MARKER1_HIGH_N
+
+(Marker1 High Level)
+ Double
+ When the Input Method is Amplitude/Offset, it is skipped. 
+ 
+16
+ ARKER1_LOW_N
+
+(Marker1 Low Level)
+ Double
+ When the Input Method is Amplitude/Offset, it is skipped. 
+ 
+17
+ MARKER2_SKEW_N
+
+(Marker Skew)
+ Double
+    
+ 
+18
+ MARKER2_METHOD_N
+
+(Marker2 Level Input Method)
+ Short(enum)
+ Amplitude/Offset, High/Low 
+
+[EMarkerInputMethod]
+ 
+19
+ MARKER2_AMPLITUDE_N
+
+(Marker2 Amplitude)
+ Double
+ When the Input Method is High/Low, it is skipped.
+ 
+20
+ MARKER2_OFFSET_N
+
+(Marker2 Offset)
+ Double
+ When the Input Method is High/Low, it is skipped.
+ 
+21
+ MARKER2_HIGH_N
+
+(Marker2 High Level)
+ Double
+ When the Input Method is Amplitude/Offset, it is skipped. 
+ 
+22
+ MARKER2_LOW_N
+
+(Marker2 Low Level)
+ Double
+ When the Input Method is Amplitude/Offset, it is skipped. 
+ 
+23
+ DIGITAL_METHOD_N
+
+(Digital Level Input Method)
+ Short(enum)
+ Amplitude/Offset, High/Low 
+
+[EDigitalInputMethod]
+ 
+24
+ DIGITAL_AMPLITUDE_N
+
+(Digital Output Amplitude)
+ Double
+ When the Input Method is High/Low, it is skipped.
+ 
+25
+ DIGITAL_OFFSET_N
+
+(Digital Output Offset)
+ Double
+ When the Input Method is High/Low, it is skipped.
+ 
+26
+ DIGITAL_HIGH_N
+
+(Digital Output High Level )
+ Double
+ When the Input Method is Amplitude/Offset, it is skipped. 
+ 
+27
+ DIGITAL_LOW_N
+
+(Digital Output Low Level)
+ Double
+ When the Input Method is Amplitude/Offset, it is skipped. 
+ 
+28
+ EXTERNAL_ADD_N
+ Short(BOOL)
+ AWG5000 only
+ 
+29
+ PHASE_DELAY_INPUT_METHOD_N
+ Short(enum)
+ Phase/DelayInme/DelayInints
+ 
+30
+ PHASE_N
+ Double
+ When the Input Method is not Phase, it is skipped. 
+ 
+31
+ DELAY_IN_TIME_N
+ Double
+ When the Input Method is not DelayInTime, it is skipped. 
+ 
+32
+ DELAY_IN_POINTS_N
+ Double
+ When the Input Method is not DelayInPoint, it is skipped. 
+ 
+33
+ CHANNEL_SKEW_N
+ Double
+    
+ 
+4
+ "_N" at the end is the DC number. It is "_1" to "_4." 
+ 
+1
+ DC_OUTPUT_LEVEL_N
+
+(DC Output Level)
+ Double
+    
+ 
+5
+ "_N" at the end is waveform number. It is "_1" to "_32000." 
+ 
+1
+ WAVEFORM_NAME_N
+
+(Waveform Name)
+ Char
+ Include NULL.
+ 
+2
+ WAVEFORM_TYPE_N
+
+(Waveform Type)
+ Short(enum)
+ Integer | Real 
+
+[EWaveformType]
+ 
+3
+ WAVEFORM_LENGTH_N
+
+(Waveform Length)
+ Long
+    
+ 
+4
+ WAVEFORM_TIMESTAMP_N
+ SYSTEMTIME  3 
+    
+ 
+5
+ WAVEFORM_DATA_N
+
+(Waveform Data)
+ Float/
+
+Unsigned char
+ Depend on Waveform Type.
+ 
+6
+ "_N" at the end is element number. In the AWG5000B series, it is "_1" to "_8000." In the AWG7000B series, it is "_1" to "_16000." In the AWG5000 and AWG7000 series, it is "_1" to "_4000." 
+ 
+1
+ SEQUENCE_WAIT_N
+
+(Wait Trigger)
+ Short(BOOL)
+ On | Off
+ 
+2
+ SEQUENCE_LOOP_N
+
+(Loop)
+ Long (0 or Loop Count)
+ 0= infinite
+ 
+3
+ SEQUENCE_JUMP_N
+
+(Jump Target)
+ Short (0 or -1or element#)
+ The value of [EJumpTargetType] is translated, read, and written. 
+
+JumpTargetType_OFF = 0 
+
+JumpTargetType_INDEX = element # 
+
+JumpTargetType_NEXT = -1
+ 
+4
+ SEQUENCE_GOTO_N
+
+(Goto Target)
+ Short (0 or element#)
+ If GOTO is OFF, 0 is entered, and if not, an element number is entered. 
+ 
+5
+ SEQUENCE_WAVEFORM_NAME_ CH_N_N
+
+(Waveform for the sequence mode)
+ Char
+ Include NULL. 
+
+The "N" in "CH_N" is the channel number.
+ 
+6
+ SEQUENCE_IS_SUBSEQ_N
+ Short(BOOL)
+ Yes | No
+ 
+7
+ SEQUENCE_SUBSEQ_NAME_N
+ Char
+ Include NULL.
+ 
+7
+ Subsequence
+
+_O : Order of restoring Subsequence. 1 to 8000
+
+_U : Index of UnitList. 1 to 8000
+
+_E : Element Index of Subsequence. 1 to 8000
+ 
+1
+ SUBSEQ_NAME_O 
+
+(Name of Subsequence)
+ Char
+ Include NULL.
+ 
+2
+ SUBSEQ_TIMESTAMP_0
+ SYSTEMTIME
+ Refer to WAVEFORM_TIMESTAMP_N. 16 bytes.
+ 
+3
+ SUBSEQ_LENGTH_0
+ INT
+ Number of elements in Subsequence.
+ 
+4
+ SUBSEQ_LOOP_E_0_U (Loop)
+ INT(1 to 65536)
+ Value 0 (= infinite) is prohibited.
+ 
+5
+ SUBSEQ_WAVEFORM_NAME_CH_X_E_O_U
+ Char
+ Include NULL. 
+
+The "X" in "CH_X" is the channel number.
+ 
+
+
+1 Short = 2 bytes, Double = 8 bytes 
+
+2 For "Short (BOOL)" in the Record Data Format, "not 0" means True (or On), "0" means False (or Off). 
+
+3 The structure defined by winbase.h, 16bytes. 
+
+WAVEFORM_DATA_N
+WAVEFORM_DATA_N contains waveform data. Waveform data includes one bit of analog data and two bits of marker data. For specific data formats, refer to Waveform Data Format. 
+
+The relationship between waveform length and waveform data length (the number of bytes) is as shown: 
+
+When WAVEFORM_TYPE_N is WaveformType_INTEGER:
+
+Waveform data length (byte) = the value of WAVEFORM_LENGTH_N x 2 
+
+When WAVEFORM_TYPE_N is WaveformType_REAL:
+
+Waveform data length (byte) = the value of WAVEFORM_LENGTH_N x 5 
+
+Level Record (xxx_METHOD_N, xxx_AMPLITUDE_N)
+There are two types of level records: Amplitude/Offset and High/Low. When you save a file, two types of data are saved regardless of the method. When you read a file, only the data specified by the method is read. When the method is High/Low and only Amplitude/Offset type records exist, High/Low is the default value. 
+
+In the Windows Shell Extension property, analog data is displayed as Amplitude/Offset and marker data as High/Low. However, when only data that cannot be displayed as Amplitude/Offset or High/Low exists in the file, it is converted by Analog/Offset <-> High/Low and is displayed in properties. 
+
+Example 1
+
+ANALOG_METHOD_1 = Amplitude/Offset 
+
+ANALOG_AMPLIDUTE_1 = 1Vp-p
+
+-> It is displayed as it is.
+
+Example 2
+
+ANALOG_METHOD_1 = High/Low 
+
+ANALOG_HIGH_1 = 0.5 V 
+
+ANALOG_LOW_1 = -0.5 V
+
+-> High/Low data is converted to Amplitude/Offset data and then displayed. 
+
+Example 3
+
+ANALOG_METHOD_1 = High/Low 
+
+ANALOG_AMPLIDUTE_1 = 1Vp-p 
+
+ANALOG_OFFSET_1 = 0 V
+
+-> Because there is no High/Low data, conversion is impossible. "-" is displayed. 
+
+Example 4
+
+ANALOG_METHOD_1 = High/Low 
+
+ANALOG_HIGH_1 = 0.5 V
+
+-> Conversion is impossible. "-" is displayed.
+
+Loading of Setup File
+When a record with the same name exists, the first record name that appears is loaded. The second and succeeding record names to that appear are skipped. 
+
+SAMPLING_RATE = 3G and 
+
+SAMPLING_RATE = 4G
+
+If these two exist in this order, the sampling rate after the file has been loaded will be 3G. 
+
+The settings that are not included in the loaded file (*.awg) will be set to default values. (Even though some of the records do not exist, a file can be loaded.) For example, when an *.awg file that has no SAMPLING_RATE is loaded, the sampling rate will be default value. On the other hand, when an *.awg file that has only a SAMPLING_RATE is loaded, items other than the sampling rate will be default values. 
+
+Appearance Order of Record Names
+There is no particular restriction on the appearance order of record names in the file. For example, no error occurs when DAC_RESOLUTION_N appears before SAMPLING_RATE, and vice versa. However, MAGIC must be present at the top in the file. When the MAGIC record is not at the top in the file, an error occurs. 
+
+Undefined Record Name
+When there is an unknown record name in the file, the setting for the record name is skipped. No error occurs. 
+
+NOTE. The skipped record name is notified to the user as warning information. 
+
+A record name is read according to the record format, and when the end of the record name is not NULL, an error occurs. 
+
+Public Files
+The record name definition file (AwgSetupRECID.h) and Enum definition file (AwgDefines.h) are available in Program Files\Tektronix\AWG\Include. 
