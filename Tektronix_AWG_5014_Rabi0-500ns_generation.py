@@ -42,6 +42,7 @@ def Parse_Channel(ChanCode,ChanNum,WFM_length):
         return (bufferLength,NumWFMs)
     else:
         print ('ERROR: total buffer length %s exceeds waveform length %s\n' % (totalBufferLength,WFM_length))
+        sys.exit(0)
 
 
 # Populate Channels

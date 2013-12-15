@@ -7,9 +7,8 @@ import sys
 import os
 import struct
 
-os.chdir('C:\Users\Steve\Documents\GitHub\AWG_Generation_Scripts')
+os.chdir('C:\Users\Felix\Documents\GitHub\AWG_Generation_Scripts')
 
-from Tek5014_ParseCodes import Parse_Channel
 
 def Parse_Channel(ChanCode,ChanNum,WFM_length):
 # Parse channel information
@@ -44,6 +43,7 @@ def Parse_Channel(ChanCode,ChanNum,WFM_length):
         return (bufferLength,NumWFMs)
     else:
         print ('ERROR: total buffer length %s exceeds waveform length %s\n' % (totalBufferLength,WFM_length))
+        sys.exit(0)
 
 
 # Populate Channels
@@ -194,8 +194,8 @@ base_filename = 'CW_ESR_python'
 LenData = len(Chan1ArrVal[0,:])*5
 LenHead = len(('%s' % LenData))
 
-base_dir = 'Y:\AWG'
-os.chdir('Y:\AWG')
+base_dir = 'F:\AWG'
+os.chdir('F:\AWG')
 basefile_dir = ('Y:\\AWG\\%s' %(base_filename))
 if not os.path.exists(basefile_dir):
     os.makedirs(base_filename)

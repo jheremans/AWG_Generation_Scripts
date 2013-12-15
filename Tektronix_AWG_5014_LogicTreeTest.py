@@ -7,7 +7,7 @@ import sys
 import os
 import struct
 
-os.chdir('C:\Users\Steve\Documents\GitHub\AWG_Generation_Scripts')
+os.chdir('C:\Users\Felix\Documents\GitHub\AWG_Generation_Scripts')
 
 def Parse_Channel(ChanCode,ChanNum,WFM_length):
 # Parse channel information
@@ -42,6 +42,7 @@ def Parse_Channel(ChanCode,ChanNum,WFM_length):
         return (bufferLength,NumWFMs)
     else:
         print ('ERROR: total buffer length %s exceeds waveform length %s\n' % (totalBufferLength,WFM_length))
+        sys.exit(0)
 
 
 # Populate Channels
