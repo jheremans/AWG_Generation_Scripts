@@ -123,7 +123,7 @@ elif AWG_model == '520':
 
 # times in ns
 Chan1Val = [('WFM_length','0')]
-Chan1Mark1 = [('WFM_length/2','HIGH'),('WFM_length/2','LOW')]
+Chan1Mark1 = [('WFM_length','HIGH')]
 Chan1Mark2 = [('WFM_length','LOW')]
 
 Chan2Val = [('WFM_length','0')]
@@ -190,13 +190,13 @@ print('POPULATING CHANNELS & MARKERS: %d waveforms, %d ns long' % (NumWFMs,WFM_l
 print('---------------------------------------------------')
 print('SAVING FILES ')
 
-base_filename = 'CW_ESR_python'
+base_filename = 'CWESR_python'
 LenData = len(Chan1ArrVal[0,:])*5
 LenHead = len(('%s' % LenData))
 
 base_dir = 'F:\AWG'
 os.chdir('F:\AWG')
-basefile_dir = ('Y:\\AWG\\%s' %(base_filename))
+basefile_dir = ('%s\\%s' %(base_dir,base_filename))
 if not os.path.exists(basefile_dir):
     os.makedirs(base_filename)
     print ('Making subdirectory: %s' % base_filename)
@@ -237,57 +237,3 @@ write_waveform_files(Chan1ArrVal,Chan1ArrMark1,Chan1ArrMark2,1,NumWFMs)
 write_waveform_files(Chan2ArrVal,Chan2ArrMark1,Chan2ArrMark2,2,NumWFMs)
 write_waveform_files(Chan3ArrVal,Chan3ArrMark1,Chan3ArrMark2,3,NumWFMs)
 write_waveform_files(Chan4ArrVal,Chan4ArrMark1,Chan4ArrMark2,4,NumWFMs)
-
-# Plot one waveform
-##f = figure()
-##graph1 = f.add_subplot(311)
-##graph2 = f.add_subplot(312,sharex=graph1)
-##graph3 = f.add_subplot(313,sharex=graph1)
-##nb = 1
-
-##KBinput = raw_input('What waveform would you like')
-##decoded = KBinput.decode('utf-8')
-##inputWFM = decoded.encode('utf-8')
-##print('Desire WFM %s',inputWFM)
-
-
-
-##while (inputWFM != 'q'):
-##    if inputWFM != 'q':
-##        graph1.clear()
-##        graph2.clear()
-##        graph3.clear()
-##
-##        wfm = eval(inputWFM)
-##        Xdata = numpy.linspace(0,WFM_length,WFM_length)
-##        Ydata = ChanArrVal[wfm,:]
-##
-##        graph1.plot(Xdata,Ydata)
-##        graph1.set_title('Waveform %d' % wfm)
-##        graph1.set_ylabel('Channels voltage (mV)')
-##        grid(True)
-##        graph2.plot(Xdata,Ydata)
-##
-##
-##
-##        graph2.plot(Xdata,Ydata)
-##        graph2.set_ylabel('Chan 1 & 2 Markers voltage (mV)')
-##
-##
-##        graph3.plot(Xdata,Ydata)
-##        graph3.set_ylabel('Chan 3& 4 Markers voltage (mV)')
-##
-##
-##        xlabel('time (ns)')
-##        ylabel('voltage (mV)')
-##        show()
-##
-##
-##print('Quit detected')
-
-fig = plt.figure(figsize=(5,10))
-
-plt.imshow(Chan1ArrVal, aspect="auto",cmap=plt.get_cmap('BuGn'))
-
-##plt.show()
-

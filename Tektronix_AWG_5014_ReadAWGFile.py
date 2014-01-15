@@ -15,10 +15,10 @@ import numpy as np
 import operator
 
 values = {}  # We will store all the data in the dictionary "values"
-fp = open("TruncatedExample.awg","rb")
+fp = open("Setup1.awg","rb")
 
 # Read first 200 parameters from file
-for i in range(200):
+for i in range(4):
     try:
         name_bytes, = struct.unpack("<L",fp.read(4))  #Read 32bit little-endian unsigned long repreesenting number of bytes in parameter name
         value_bytes, = struct.unpack("<L",fp.read(4)) # Read 32bit little-endian unsigned long representing number of bytes in parameter data

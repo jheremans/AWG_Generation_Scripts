@@ -1,0 +1,28 @@
+Chan1Val = [('WFM_length','0')]
+Chan1Mark1 = [('WFM_length-AOM_DELAY','LOW'),('AOM_DELAY','HIGH')]
+Chan1Mark2 = [('RED_ONTIME','HIGH'),('WFM_length-RED_ONTIME','LOW')]
+Chan2Val = [('WFM_length','0')]
+Chan2Mark1 = [('WFM_length','LOW')]
+Chan2Mark2 = [('WFM_length','LOW')]
+Chan3Val = [('WFM_length','0')]
+Chan3Mark1 = [('WFM_length','HIGH')]
+Chan3Mark2 = [('WFM_length','LOW')]
+Chan4Val = [('WFM_length','0')]
+Chan4Mark1 = [('WFM_length','LOW'),]
+Chan4Mark2 = [('AOM_DELAY','HIGH'),('WFM_length-AOM_DELAY','LOW')]
+
+VARIABLES = [('WFM_length = 3000 # ns'),
+('AOM_DELAY = 1000 # ns'),
+('RED_ONTIME = 2000 # ns')]
+
+AWG_VALUES = [('MAGIC',5000),
+('VERSION',1),
+('SAMPLING_RATE',1000000000.0),
+('CLOCK_SOURCE',1),
+('TRIGGER_SOURCE',1),
+('JUMP_TIMING',1),
+('RUN_MODE',1),
+('MARKER1_HIGH_1',1.1),
+('MARKER1_LOW_1',0),
+('MARKER2_HIGH_1',1.2),
+('MARKER2_LOW_1',0)]

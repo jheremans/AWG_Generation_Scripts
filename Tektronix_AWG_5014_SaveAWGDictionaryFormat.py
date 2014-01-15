@@ -1,21 +1,10 @@
-#-------------------------------------------------------------------------------
-# Name:        Tektronix AWG 5014C Read AWG Binary File
-# Purpose:     Read .AWG Binary Setup File into Python Dictionary
-#
-# Author:      Andrew Yeats
-#
-# Created:     10/12/2013
-# Copyright:   (c) Admin 2013
-# Licence:     <your licence>
-#-------------------------------------------------------------------------------
-
 import os
 import struct
 import numpy as np
 import operator
 
 values = {}  # We will store all the data in the dictionary "values"
-fp = open("TruncatedExample.awg","rb")
+fp = open("Setup1.awg","rb")
 
 # Read first 200 parameters from file
 for i in range(200):
@@ -46,40 +35,43 @@ fp.close() # Close file
 # Generate sorted list from dictionary, sorting by index (the order originally read from file)
 output_list = sorted(values.iteritems(),key=operator.itemgetter(1))
 output = []
+typeNames = []
+
 NameFlag = 0
 DataFlag = 0
 TimestampFlag = 0
 for x in range(len(output_list)):
     byte_num = output_list[x][1][1]
-    name_string = output_list[x][0]
-    if byte_num == 2:
-         output.append([name_string,'int16'])
-    elif byte_num == 4:
-        output.append([name_string,'int32'])
-    elif byte_num== 8:
-        output.append([name_string,'float64'])
-    else:
-        name_string = output_list[x][0]
-        if "NAME" in name_string:
-            if NameFlag == 0:
-                output.append([name_string,'WFM_name'])
-                NameFlag = 1
-        elif "DATA" in name_string:
-            if DataFlag == 0:
-                output.append([name_string,'WFM_data'])
-                DataFlag = 1
-        elif "TIMESTAMP"in name_string:
-            if TimestampFlag == 0:
-                output.append([name_string,'16byteTimeStamp'])
-                TimestampFlag = 1
+    value_num = output_list[x][1][2]
+
+    # remove numbers from name
+    s = output_list[x][0]
+    name_string = ''.join([i for i in s if not i.isdigit()])
+    print('%s\t%s' % (s,name_string))
+
+    if name_string not in typeNames:
+        typeNames.append(name_string)
+        if byte_num == 2:
+             output.append([name_string,'int16',value_num])
+        elif byte_num == 4:
+            output.append([name_string,'int32',value_num])
+        elif byte_num== 8:
+            output.append([name_string,'float64',value_num])
+        else:
+##            name_string = output_list[x][0]
+            if "NAME" in name_string:
+                output.append([name_string,'WFM_name',value_num])
+            elif "DATA" in name_string:
+                output.append([name_string,'WFM_data',value_num])
+            elif "TIMESTAMP"in name_string:
+                output.append([name_string,'16byteTimeStamp',value_num])
 ##     output.append([output_list[x][0], output_list[x][1][2], output_list[x][1][1]]) #Only print attribute name and value, not the byte sizes and indices we stored for later use
-print output
+##print output
 
 
 seq_name = 'AWGFileFormat_Dictionary.txt';
 fseq = open(seq_name,'w')
 
 for x in range(0,len(output)):
-    fseq.write('%s \t %s\n' %(output[x][0],output[x][1]))
-
+    fseq.write('%s\t%s\t%s\t\n' %(output[x][0],output[x][1],output[x][2]))
 fseq.close()
