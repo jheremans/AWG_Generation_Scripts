@@ -42,6 +42,16 @@ for i in range(0,12):
             for j in range(0,NumElements):
                 timeArray = ChanStringArr[2*j].strip("()''")
                 valArray = ChanStringArr[2*j+1].strip("()''")
+
+                # Replace stripped closing parentheses to numpy call in string to eval
+                # Only works for numpy commands with only ONE parameter such as numpy.arange(10)
+                if timeArray.find('numpy') != -1:
+                    timeArray += ')'
+                    #print "DEBUG" + timeArray + "DEBUG"
+                if valArray.find('numpy') != -1:
+                    valArray += ')'
+                    #print "DEBUG" + valArray + "DEBUG"
+
                 FullChanString[i].append([timeArray,valArray])
                 print ('\t(%s,%s)' % (timeArray,valArray))
 
