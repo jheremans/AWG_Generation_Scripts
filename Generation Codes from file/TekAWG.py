@@ -322,7 +322,7 @@ def Load_AWGDictFile():
     AWG_Dict = {}  # We will store all the data in the dictionary "values"
     AWG_byte = {}  # We will store all the data in the dictionary "bytes"
 
-    seq_dir = 'C:\Users\Felix\Documents\GitHub\AWG_Generation_Scripts'
+    seq_dir = 'C:\Users\Admin\Documents\GitHub\AWG_Generation_Scripts\Generation Codes from file'
     os.chdir(seq_dir)
 
     ##seq_name = '';

@@ -7,7 +7,7 @@ import sys
 import os
 import struct
 
-os.chdir('C:\Users\Felix\Documents\GitHub\AWG_Generation_Scripts')
+os.chdir('C:\Users\Admin\Documents\GitHub\AWG_Generation_Scripts\Generation Codes from file')
 
 def Parse_Channel(ChanCode,ChanNum,WFM_length):
 # Parse channel information
@@ -28,7 +28,7 @@ def Parse_Channel(ChanCode,ChanNum,WFM_length):
                 NumWFMs = len(elementArr)
                 print('%d : Found numpy equation {%s} buffer length = %d, number of waveforms %d' % (idx,el_time,bufferLength[idx],NumWFMs))
 
-            elif len(re.split('[-+*/]', el_time)) != 1:
+            elif len(re.split('[-+*/^]', el_time)) != 1:
                 print ('%d : Found string equation, {%s} = %d' % (idx,el_time,eval(el_time)))
                 bufferLength[idx] = eval(el_time)
             else:
@@ -86,19 +86,14 @@ def Populate_Marker(MarkerCode,ChanNum,WFM_length,NumWFMs):
                         print ('ERROR: unknown marker value')
                 MarkerArrIdx = MarkerArrIdx+bufferLength
             else:
-
                 for x in range(0,eval(el_time)):
                     if el_val == 'HIGH':
                         MarkerArrVal[wfm,MarkerArrIdx] = 1
-##                        print('No Numpy Found: %s, HIGH' % wfm)
                     elif el_val == 'LOW':
                         MarkerArrVal[wfm,MarkerArrIdx] = 0
-##                        print('No Numpy Found: %s, LOW' % wfm)
                     else:
                         print ('ERROR: unknown marker value')
-
                     MarkerArrIdx = MarkerArrIdx+1
-
     print('Populated Chan%s: NO ERRORS' % ChanNum)
     return MarkerArrVal
 
@@ -109,8 +104,6 @@ clock = 1 #ns
 piPulse = 10 #ns
 
 
-# CONSTANTS
-WFM_length = 2500 # ns
 
 if AWG_model == '5014':
     print('Setting up for AWG %s' % AWG_model)
@@ -121,26 +114,31 @@ elif AWG_model == '520':
     numChans = 2
     numMrksPerChan = 2
 
+# CONSTANTS
+WFM_length = 3000 # ns
+
 GreenAOMDelay = 1000
 GreenPLread = 300
+RFbufferregion = 0
+RFpulselength = 0
 T_rabi =numpy.arange(0,601,10)
 
 # times in ns
 Chan1Val = [('WFM_length','0')]
 Chan1Mark1 = [('WFM_length-GreenAOMDelay','LOW'),('GreenAOMDelay','HIGH')]
-Chan1Mark2 = [('WFM_length','LOW')]
+Chan1Mark2 = [('RFbufferregion','LOW'),('WFM_length-GreenAOMDelay-RFbufferregion','HIGH'),('GreenAOMDelay','LOW')]
 
 Chan2Val = [('WFM_length','0')]
 Chan2Mark1 = [('WFM_length','LOW')]
 Chan2Mark2 = [('WFM_length','LOW')]
 
 Chan3Val = [('WFM_length','0')]
-Chan3Mark1 = [('GreenAOMDelay','LOW'),('600','LOW'),('numpy.arange(0,501,10)','HIGH'),('300','LOW')]
+Chan3Mark1 = [('GreenAOMDelay+(RFbufferregion/2)-(RFpulselength/2)','LOW'),('RFpulselength','HIGH'),('(RFbufferregion/2)-(RFpulselength/2)','LOW'),('WFM_length-GreenAOMDelay-RFbufferregion','LOW')]
 Chan3Mark2 = [('WFM_length','LOW')]
 
 Chan4Val = [('WFM_length','0')]
 Chan4Mark1 = [('GreenAOMDelay','HIGH'),('WFM_length-GreenAOMDelay','LOW')]
-Chan4Mark2 = [('GreenPLread','HIGH'),('WFM_length-GreenPLread','LOW')]
+Chan4Mark2 = [('GreenAOMDelay+RFbufferregion+100','LOW'),('WFM_length-GreenAOMDelay-RFbufferregion-200','HIGH'),('100','LOW')]
 
 # will eventually be a function called interpretChan and interpretMarker
 ChanCode = Chan1Val
@@ -192,15 +190,15 @@ print('POPULATING CHANNELS & MARKERS: %d waveforms, %d ns long' % (NumWFMs,WFM_l
 (Chan4ArrMark1) = Populate_Marker(Chan4Mark1,'4M1',WFM_length,NumWFMs)
 (Chan4ArrMark2) = Populate_Marker(Chan4Mark2,'4M2',WFM_length,NumWFMs)
 print('---------------------------------------------------')
-print('SAVING FILES ')
 
-base_filename = 'T_Rabi0-500_python'
+print('SAVING FILES ')
+base_dir = 'M:\Shared Projects\Cold Diamond\AWG'
+base_filename = 'PLE_python'
+os.chdir(base_dir)
 LenData = len(Chan1ArrVal[0,:])*5
 LenHead = len(('%s' % LenData))
 
-base_dir = 'F:\AWG'
-os.chdir('F:\AWG')
-basefile_dir = ('F:\\AWG\\%s' %(base_filename))
+basefile_dir = ('%s\\%s' %(base_dir,base_filename))
 if not os.path.exists(basefile_dir):
     os.makedirs(base_filename)
     print ('Making subdirectory: %s' % base_filename)
@@ -218,6 +216,8 @@ for wfm in range(0,NumWFMs):
             fseq.write(',')
         else:
             fseq.write((',0,0,%d,0\n' % (wfm+1)))
+##            fseq.write((',0,0,%d,0\n' % (wfm)))
+
 fseq.write('JUMP_MODE SOFTWARE\n')
 fseq.write('JUMP_TIMING SYNC\n')
 fseq.write('CLOCK 1.0E+9')

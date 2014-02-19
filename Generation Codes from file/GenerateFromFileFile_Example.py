@@ -4,14 +4,14 @@ import numpy as np
 import operator
 
 # Set directory
-awg_dir = 'C:\Users\Felix\Documents\GitHub\AWG_Generation_Scripts'
+awg_dir = 'C:\Users\Admin\Documents\GitHub\AWG_Generation_Scripts\Generation Codes from file'
 os.chdir(awg_dir)
 import TekAWG # import AWG functions
 
 # Set save directory
 filename = 'AWG_FullFormat_PLE.txt'
 SaveFileName = 'PLE_python'
-SaveFilePath = 'F:\AWG'
+SaveFilePath = 'M:\Shared Projects\Cold Diamond\AWG'
 
 # Open AWG full file
 fawg = fdict = open(filename,"rb")

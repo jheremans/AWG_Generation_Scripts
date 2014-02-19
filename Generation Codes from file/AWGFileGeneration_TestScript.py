@@ -7,7 +7,7 @@ import sys
 AWG_Dict = {}  # We will store all the data in the dictionary "values"
 AWG_byte = {}  # We will store all the data in the dictionary "bytes"
 
-seq_dir = 'C:\Users\Felix\Documents\GitHub\AWG_Generation_Scripts'
+seq_dir = 'C:\Users\Admin\Documents\GitHub\AWG_Generation_Scripts'
 os.chdir(seq_dir)
 
 ##seq_name = '';
@@ -59,8 +59,8 @@ RUN_MODE = 0 # 0: Continuous, 1: Triggered, 2: Gated, 3: Sequence
 
 base_filename = 'CWESR_python'
 
-base_dir = 'F:\AWG'
-os.chdir('F:\AWG')
+base_dir = 'M:\Shared Projects\Cold Diamond\AWG'
+os.chdir(base_dir)
 basefile_dir = ('%s\\%s' %(base_dir,base_filename))
 if not os.path.exists(basefile_dir):
     os.makedirs(base_filename)
