@@ -12,30 +12,57 @@ os.chdir('C:\Users\Admin\Documents\GitHub\AWG_Generation_Scripts\Generation Code
 def Parse_Channel(ChanCode,ChanNum,WFM_length):
 # Parse channel information
     bufferLength = numpy.zeros(len(ChanCode)+1)
+    ValBufferLength =numpy.zeros(len(ChanCode)+1)
     print ('PARSING CHAN%s, %d element(s)' % (ChanNum,len(ChanCode)))
     NumWFMs = 1
+    NumValWFMs = 1
     for idx, element in enumerate(ChanCode):
         el_time = element[0]
         el_val = element[1]
 
+        # Parse time values
         if el_time.isdigit():
-            print('%d : Found constant digit, %d' % (idx,eval(el_time)))
+            print('TIME %d : Found time constant digit, %d' % (idx,eval(el_time)))
             bufferLength[idx] = eval(el_time)
         else:
             if el_time.find('numpy') != -1:
                 elementArr = eval(el_time) # cast array as integers
                 bufferLength[idx] = max(elementArr)
                 NumWFMs = len(elementArr)
-                print('%d : Found numpy equation {%s} buffer length = %d, number of waveforms %d' % (idx,el_time,bufferLength[idx],NumWFMs))
+                print('TIME %d : Found numpy equation {%s} buffer length = %d, number of waveforms %d' % (idx,el_time,bufferLength[idx],NumWFMs))
 
             elif len(re.split('[-+*/^]', el_time)) != 1:
-                print ('%d : Found string equation, {%s} = %d' % (idx,el_time,eval(el_time)))
+                print ('TIME %d : Found string equation, {%s} = %d' % (idx,el_time,eval(el_time)))
                 bufferLength[idx] = eval(el_time)
             else:
-                print('%d : Found string constant, %s = %d' % (idx,el_time,eval(el_time)))
+                print('TIME %d : Found string constant, %s = %d' % (idx,el_time,eval(el_time)))
                 bufferLength[idx] = eval(el_time)
 
+
+        # Parse values
+        if (el_val == 'LOW'):
+            print('%d : Found LOW digit' % (idx))
+        elif (el_val == 'HIGH'):
+            print('%d : Found HIGH digit' % (idx))
+
+        else:
+            if el_val.isdigit():
+                        print('VALUE %d : Found value constant digit, %d' % (idx,eval(el_val)))
+            elif el_val.find('numpy') != -1:
+                elementArr = eval(el_val) # cast array as integers
+                NumValWFMs = len(elementArr)
+                print('VALUE %d : Found value numpy equation {%s} number of waveforms %d' % (idx,el_val,NumValWFMs))
+
+            elif len(re.split('[-+*/^]', el_val)) != 1:
+                print ('VALUE %d : Found value string equation, {%s} = %d' % (idx,el_val,eval(el_val)))
+            else:
+                print('VALUE %d : Found value string constant, %s = %d' % (idx,el_val,eval(el_val)))
+
+
     totalBufferLength = sum(bufferLength)
+    if NumWFMs < NumValWFMs:
+        NumWFMs = NumValWFMs
+
     bufferLength[idx+1] = WFM_length-totalBufferLength
     if bufferLength[idx+1] >= 0:
         print('NO PARSING ERRORS FOUND: Total Buffer Length = %s ns\n' % totalBufferLength)
@@ -57,12 +84,21 @@ def Populate_Channel(ChanCode,ChanNum,WFM_length,NumWFMs):
                 elementArr = numpy.int32(eval(el_time))
                 bufferLength = max(elementArr)
                 for x in range(0,elementArr[wfm]):
-                    ChanArrVal[wfm,ChanArrIdx+x] = eval(el_val)
+                    if el_val.find('numpy') != -1:
+                        elValArray = numpy.float(eval(el_val))
+                        ChanArrVal[wfm,ChanArrIdx] = elValArray[wfm]
+                    else:
+                        ChanArrVal[wfm,ChanArrIdx+x] = eval(el_val)
                 ChanArrIdx = ChanArrIdx+bufferLength
             else:
                 for x in range(0,eval(el_time)):
-                    ChanArrVal[wfm,ChanArrIdx] = eval(el_val)
-                    ChanArrIdx = ChanArrIdx+1
+                    if el_val.find('numpy') != -1:
+                        elValArray = eval(el_val)
+                        ChanArrVal[wfm,ChanArrIdx] = elValArray[wfm]
+                        ChanArrIdx = ChanArrIdx+1
+                    else:
+                        ChanArrVal[wfm,ChanArrIdx] = eval(el_val)
+                        ChanArrIdx = ChanArrIdx+1
     print('Populated Chan%s: NO ERRORS' % ChanNum)
     return ChanArrVal
 
@@ -89,6 +125,7 @@ def Populate_Marker(MarkerCode,ChanNum,WFM_length,NumWFMs):
                 for x in range(0,eval(el_time)):
                     if el_val == 'HIGH':
                         MarkerArrVal[wfm,MarkerArrIdx] = 1
+                        print('HIGH WTF')
                     elif el_val == 'LOW':
                         MarkerArrVal[wfm,MarkerArrIdx] = 0
                     else:
@@ -115,30 +152,34 @@ elif AWG_model == '520':
     numMrksPerChan = 2
 
 # CONSTANTS
-WFM_length = 3000 # ns
+WFM_length = 250 # ns
 
 GreenAOMDelay = 1000
 GreenPLread = 300
-RFbufferregion = 300
-RFpulselength = 20
 T_rabi =numpy.arange(0,601,10)
+theta_vals = numpy.arange(-(numpy.pi),numpy.pi+.1,(numpy.pi)/16)
+Iv = numpy.cos(theta_vals)
+Qv = numpy.sin(theta_vals)
+tstep = 5
 
 # times in ns
-Chan1Val = [('WFM_length','0')]
-Chan1Mark1 = [('WFM_length-GreenAOMDelay','LOW'),('GreenAOMDelay','HIGH')]
-Chan1Mark2 = [('RFbufferregion','LOW'),('WFM_length-GreenAOMDelay-RFbufferregion','HIGH'),('GreenAOMDelay','LOW')]
+Chan1Val = [('tstep','Iv[0]'),('tstep','Iv[1]'),('tstep','Iv[2]'),('tstep','Iv[3]'),('tstep','Iv[4]'),('tstep','Iv[5]'),('tstep','Iv[6]'),('tstep','Iv[7]'),('tstep','Iv[8]'),('tstep','Iv[9]'),('tstep','Iv[10]'),('tstep','Iv[11]'),('tstep','Iv[12]'),('tstep','Iv[13]'),('tstep','Iv[14]'),('tstep','Iv[15]'),('tstep','Iv[16]'),('tstep','Iv[17]'),('tstep','Iv[18]'),('tstep','Iv[19]'),('tstep','Iv[20]'),('tstep','Iv[21]'),('tstep','Iv[22]'),('tstep','Iv[23]'),('tstep','Iv[24]'),('tstep','Iv[25]'),('tstep','Iv[26]'),('tstep','Iv[27]'),('tstep','Iv[28]'),('tstep','Iv[29]'),('tstep','Iv[30]'),('tstep','Iv[31]'),('WFM_length-160','0')]
+Chan1Mark1 = [('WFM_length','LOW')]
+Chan1Mark2 = [('WFM_length','LOW')]
 
-Chan2Val = [('WFM_length','0')]
+Chan2Val = [('tstep','Qv[0]'),('tstep','Qv[1]'),('tstep','Qv[2]'),('tstep','Qv[3]'),('tstep','Qv[4]'),('tstep','Qv[5]'),('tstep','Qv[6]'),('tstep','Qv[7]'),('tstep','Qv[8]'),('tstep','Qv[9]'),('tstep','Qv[10]'),('tstep','Qv[11]'),('tstep','Qv[12]'),('tstep','Qv[13]'),('tstep','Qv[14]'),('tstep','Qv[15]'),('tstep','Qv[16]'),('tstep','Qv[17]'),('tstep','Qv[18]'),('tstep','Qv[19]'),('tstep','Qv[20]'),('tstep','Qv[21]'),('tstep','Qv[22]'),('tstep','Qv[23]'),('tstep','Qv[24]'),('tstep','Qv[25]'),('tstep','Qv[26]'),('tstep','Qv[27]'),('tstep','Qv[28]'),('tstep','Qv[29]'),('tstep','Qv[30]'),('tstep','Qv[31]'),('WFM_length-160','0')]
 Chan2Mark1 = [('WFM_length','LOW')]
 Chan2Mark2 = [('WFM_length','LOW')]
 
-Chan3Val = [('WFM_length','0')]
-Chan3Mark1 = [('GreenAOMDelay+(RFbufferregion/2)-(RFpulselength/2)','LOW'),('RFpulselength','HIGH'),('(RFbufferregion/2)-(RFpulselength/2)','LOW'),('WFM_length-GreenAOMDelay-RFbufferregion','LOW')]
+Chan3Val = [('3','0'),('32*tstep','1'),('WFM_length-163','0')]
+##[('3','0'),('tstep','Iv[0]'),('tstep','Iv[1]'),('tstep','Iv[2]'),('tstep','Iv[3]'),('tstep','Iv[4]'),('tstep','Iv[5]'),('tstep','Iv[6]'),('tstep','Iv[7]'),('tstep','Iv[8]'),('tstep','Iv[9]'),('tstep','Iv[10]'),('tstep','Iv[11]'),('tstep','Iv[12]'),('tstep','Iv[13]'),('tstep','Iv[14]'),('tstep','Iv[15]'),('tstep','Iv[16]'),('tstep','Iv[17]'),('tstep','Iv[18]'),('tstep','Iv[19]'),('tstep','Iv[20]'),('tstep','Iv[21]'),('tstep','Iv[22]'),('tstep','Iv[23]'),('tstep','Iv[24]'),('tstep','Iv[25]'),('tstep','Iv[26]'),('tstep','Iv[27]'),('tstep','Iv[28]'),('tstep','Iv[29]'),('tstep','Iv[30]'),('tstep','Iv[31]'),('WFM_length-163','0')]
+Chan3Mark1 = [('100','LOW'),('10','HIGH'),('WFM_length-110','LOW')]
 Chan3Mark2 = [('WFM_length','LOW')]
 
-Chan4Val = [('WFM_length','0')]
-Chan4Mark1 = [('GreenAOMDelay','HIGH'),('WFM_length-GreenAOMDelay','LOW')]
-Chan4Mark2 = [('GreenAOMDelay+RFbufferregion+100','LOW'),('WFM_length-GreenAOMDelay-RFbufferregion-200','HIGH'),('100','LOW')]
+Chan4Val = [('3','0'),('32*tstep','0'),('WFM_length-163','0')]
+##[('3','0'),('tstep','Qv[0]'),('tstep','Qv[1]'),('tstep','Qv[2]'),('tstep','Qv[3]'),('tstep','Qv[4]'),('tstep','Qv[5]'),('tstep','Qv[6]'),('tstep','Qv[7]'),('tstep','Qv[8]'),('tstep','Qv[9]'),('tstep','Qv[10]'),('tstep','Qv[11]'),('tstep','Qv[12]'),('tstep','Qv[13]'),('tstep','Qv[14]'),('tstep','Qv[15]'),('tstep','Qv[16]'),('tstep','Qv[17]'),('tstep','Qv[18]'),('tstep','Qv[19]'),('tstep','Qv[20]'),('tstep','Qv[21]'),('tstep','Qv[22]'),('tstep','Qv[23]'),('tstep','Qv[24]'),('tstep','Qv[25]'),('tstep','Qv[26]'),('tstep','Qv[27]'),('tstep','Qv[28]'),('tstep','Qv[29]'),('tstep','Qv[30]'),('tstep','Qv[31]'),('WFM_length-163','0')]
+Chan4Mark1 = [('WFM_length','LOW')]
+Chan4Mark2 = [('WFM_length','LOW')]
 
 # will eventually be a function called interpretChan and interpretMarker
 ChanCode = Chan1Val
@@ -193,7 +234,7 @@ print('---------------------------------------------------')
 
 print('SAVING FILES ')
 base_dir = 'M:\Shared Projects\Cold Diamond\AWG'
-base_filename = 'PLEpipulse20_python'
+base_filename = 'T_varyIQmod32parts1fix_python'
 os.chdir(base_dir)
 LenData = len(Chan1ArrVal[0,:])*5
 LenHead = len(('%s' % LenData))
